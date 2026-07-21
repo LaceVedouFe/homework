@@ -1,0 +1,90 @@
+x-app-common: &app-common
+  build:
+    context: .
+  environment:
+    PYTHONPATH: /app
+  volumes:
+    - .:/app
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+services:
+  app:
+    <<: *app-common
+    command: python3 manage.py runserver 0.0.0.0:${APP_PORT:-8800}
+    ports:
+      - "${APP_PORT:-8800}:${APP_PORT:-8800}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery_worker:
+        condition: service_started
+      celery_beat:
+        condition: service_started
+
+  postgres:
+    image: postgres:15.7-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-8801}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 2s
+
+  celery_worker:
+    <<: *app-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      poetry run python -m celery
+      -A common_utils.celery:app
+      worker
+      -Q default,high_priority
+      -n default_worker
+      -l INFO
+      -c 1
+
+  celery_beat:
+    <<: *app-common
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      poetry run python -m celery
+      -A common_utils.celery:app
+      beat
+      -l INFO
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

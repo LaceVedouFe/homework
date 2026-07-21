@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <div class="module">
+    <table style="width: 100%">
+      <caption>
+        <span class="section">Feature флаги</span>
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Название</th>
+          <th scope="col">Описание</th>
+          <th scope="col">Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for flag in feature_flags %}
+      <tr>
+        <td>{{ flag.name }}</td>
+        <td>{{ flag.description }}</td>
+        <td>
+          <div class="submit-row">
+            <form method="post" action="{% url 'change_feature_flag_status' %}" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="flag_name" value="{{ flag.name }}">
+              <input type="hidden" name="status" value="disabled">
+              <input type="submit" value="ВЫКЛ" {% if flag.status == 'disabled' %}disabled{% endif %}>
+            </form>
+            <form method="post" action="{% url 'change_feature_flag_status' %}" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="flag_name" value="{{ flag.name }}">
+              <input type="hidden" name="status" value="ip">
+              <input type="submit" value="IP" {% if flag.status == 'ip' %}disabled{% endif %}>
+            </form>
+            <form method="post" action="{% url 'change_feature_flag_status' %}" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="flag_name" value="{{ flag.name }}">
+              <input type="hidden" name="status" value="all">
+              <input type="submit" value="ВСЕ" {% if flag.status == 'all' %}disabled{% endif %}>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+  </div>
+{% endblock %}
