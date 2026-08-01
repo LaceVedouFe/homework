@@ -20,19 +20,3 @@ class User(AbstractUser):
             self.email = self.email.lower()
 
         super().save(*args, **kwargs)
-
-
-class Team(models.Model):
-    """Модель: Команда"""
-
-    hltv_id = models.IntegerField(verbose_name='Идентификатор на HLTV')
-    hltv_link = models.URLField(verbose_name='Ссылка на HLTV')
-
-    class Meta:
-        """Класс метаданных"""
-
-        verbose_name = 'Команда'
-        verbose_name_plural = 'Команды'
-
-    def __str__(self):
-        return f'Команда#{self.id}'
