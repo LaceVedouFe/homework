@@ -13,3 +13,7 @@ class RegistrationForm(forms.Form):
         if password != password_confirmation:
             raise ValidationError('Пароли не совпадают')
         return self.cleaned_data
+
+class AuthorizationForm(forms.Form):
+    username = forms.CharField(label='Ваше имя', min_length=4, max_length=30)
+    password = forms.CharField(label='Пароль', min_length=8, max_length=20, widget=forms.PasswordInput)
