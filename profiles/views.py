@@ -1,10 +1,9 @@
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 
-from profiles.forms import RegistrationForm, AuthorizationForm, EditForm
+from profiles.forms import RegistrationForm, AuthorizationForm
 from profiles.models import User
 
 
@@ -42,23 +41,4 @@ def authorization(request):
     return render(request, 'profiles/authorization.html', context)
 
 def profile(request, user_id):
-    profile_user = get_object_or_404(User, id=user_id)
-
-    context = {'profile_user': profile_user}
-    return render(request, 'profiles/profile.html', context)
-
-
-@login_required()
-def edit(request):
-    if request.method == 'POST':
-        form = EditForm(request.POST)
-        if form.is_valid():
-            user = request.user
-            user.first_name = form.cleaned_data['first_name']
-            user.information = form.cleaned_data['information']
-            user.save()
-            return redirect('profile', user_id=user.id)
-    else:
-        form = EditForm()
-    context = {'form': form}
-    return render(request, 'profiles/edit.html', context)
+    return HttpResponse(str(user_id))
