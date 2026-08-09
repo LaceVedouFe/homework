@@ -5,6 +5,8 @@ from django.db import models
 class User(AbstractUser):
     """Модель: Пользователь"""
 
+    information = models.CharField(max_length=500, verbose_name='Информация', blank=True)
+
     class Meta:
         """Класс метаданных"""
 
