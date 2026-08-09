@@ -17,7 +17,3 @@ class RegistrationForm(forms.Form):
 class AuthorizationForm(forms.Form):
     username = forms.CharField(label='Ваше имя', min_length=4, max_length=30)
     password = forms.CharField(label='Пароль', min_length=8, max_length=20, widget=forms.PasswordInput)
-
-class EditForm(forms.Form):
-    first_name = forms.CharField(label='Ваше имя', min_length=1, max_length=30)
-    information = forms.CharField(label='Информация', max_length=500)
